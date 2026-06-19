@@ -1,23 +1,10 @@
 import streamlit as st
-import requests
 from fpdf import FPDF
 from datetime import datetime
 
-# ─────────────────────────────────────────
-# Safely load API key
-# ─────────────────────────────────────────
-if "GEMINI_API_KEY" not in st.secrets:
-    st.error(
-        "GEMINI_API_KEY is missing from Streamlit Secrets. "
-        "Go to Manage App → Settings → Secrets and add it."
-    )
-    st.stop()
-
-API_KEY = st.secrets["GEMINI_API_KEY"]
-
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 # Page Config
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 st.set_page_config(
     page_title="Weekly Performance Scoreboard",
     page_icon="📊",
@@ -25,11 +12,11 @@ st.set_page_config(
 )
 
 st.title("📊 Automated Weekly Performance Scoreboard")
-st.markdown("Enter your weekly performance data below to generate insights and a PDF report.")
+st.markdown("Enter your weekly performance data below to generate a scoreboard and PDF report.")
 
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 # Input Form
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 st.header("📝 Enter Weekly Data")
 
 with st.form("performance_form"):
@@ -58,55 +45,10 @@ with st.form("performance_form"):
 
     submitted = st.form_submit_button("🚀 Generate Scoreboard")
 
-# ─────────────────────────────────────────
-# Generate Insights — Try both methods
-# ─────────────────────────────────────────
-def generate_insights(performance_data):
-    prompt = f"""
-You are a professional restaurant business analyst.
-Based on the weekly performance data below, generate a short, professional 4 to 5 sentence insight summary.
-Mention key strengths, areas to improve, and one actionable recommendation.
-
-Restaurant Name: {performance_data['restaurant_name']}
-Week: {performance_data['week_start']} to {performance_data['week_end']}
-Total Orders: {performance_data['total_orders']}
-Total Revenue: ${performance_data['total_revenue']}
-Average Order Value: ${performance_data['avg_order_value']}
-Average Customer Rating: {performance_data['avg_rating']} / 5
-New Customers: {performance_data['new_customers']}
-Repeat Customers: {performance_data['repeat_customers']}
-Top Selling Items: {performance_data['top_item_1']}, {performance_data['top_item_2']}, {performance_data['top_item_3']}
-"""
-
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}"
-    }
-
-    payload = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
-    }
-
-    response = requests.post(url, headers=headers, json=payload)
-
-    if response.status_code == 200:
-        result = response.json()
-        return result["candidates"][0]["content"]["parts"][0]["text"]
-    else:
-        raise Exception(f"API Error {response.status_code}: {response.text}")
-
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 # Generate PDF Report
-# ─────────────────────────────────────────
-def generate_pdf(performance_data, ai_insight):
+# ─────────────────────────────────────────────
+def generate_pdf(performance_data):
     pdf = FPDF()
     pdf.add_page()
 
@@ -163,18 +105,6 @@ def generate_pdf(performance_data, ai_insight):
     pdf.cell(0, 8, f"  3. {performance_data['top_item_3']}", ln=True)
     pdf.ln(5)
 
-    # Divider
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(5)
-
-    # AI Insights
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "AI-Generated Insights", ln=True)
-    pdf.set_font("Arial", "", 11)
-    pdf.set_fill_color(245, 255, 245)
-    clean_insight = ai_insight.encode("latin-1", errors="replace").decode("latin-1")
-    pdf.multi_cell(0, 8, clean_insight, border=1, fill=True)
-
     # Footer
     pdf.ln(10)
     pdf.set_font("Arial", "I", 9)
@@ -183,10 +113,9 @@ def generate_pdf(performance_data, ai_insight):
 
     return bytes(pdf.output())
 
-
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 # Display Results After Form Submit
-# ─────────────────────────────────────────
+# ─────────────────────────────────────────────
 if submitted:
     performance_data = {
         "restaurant_name": restaurant_name,
@@ -223,25 +152,13 @@ if submitted:
     st.markdown(f"2. **{top_item_2}**")
     st.markdown(f"3. **{top_item_3}**")
 
-    # ── AI Insights ──
-    st.markdown("---")
-    st.header("🤖 AI-Generated Insights")
-
-    with st.spinner("Generating insights using Gemini AI..."):
-        try:
-            ai_insight = generate_insights(performance_data)
-            st.success(ai_insight)
-        except Exception as e:
-            ai_insight = "AI insights could not be generated at this time."
-            st.error(f"Error generating insights: {e}")
-
     # ── PDF Download ──
     st.markdown("---")
     st.header("📄 Download PDF Report")
 
     with st.spinner("Generating PDF..."):
         try:
-            pdf_bytes = generate_pdf(performance_data, ai_insight)
+            pdf_bytes = generate_pdf(performance_data)
             st.download_button(
                 label="⬇️ Download Weekly Scoreboard PDF",
                 data=pdf_bytes,
