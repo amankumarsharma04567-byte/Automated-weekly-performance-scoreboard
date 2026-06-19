@@ -1,6 +1,5 @@
 os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6KAHzOJvcOLxoXwq_p8VDF3coTkMnUAN0ePxnEcQnC9Jw"
 
-fpdf2 google-generativeai -q
 
 # ============================================================
 # STEP 1 — Imports
