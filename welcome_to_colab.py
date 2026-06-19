@@ -78,6 +78,13 @@ Repeat Customers: {performance_data['repeat_customers']}
 Top Selling Items: {performance_data['top_item_1']}, {performance_data['top_item_2']}, {performance_data['top_item_3']}
 """
 
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
     payload = {
         "contents": [
             {
@@ -88,30 +95,13 @@ Top Selling Items: {performance_data['top_item_1']}, {performance_data['top_item
         ]
     }
 
-    headers_json = {"Content-Type": "application/json"}
-
-    # Method 1 — Standard API key as URL param (AIzaSy... keys)
-    url_with_key = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
-    response = requests.post(url_with_key, headers=headers_json, json=payload)
+    response = requests.post(url, headers=headers, json=payload)
 
     if response.status_code == 200:
         result = response.json()
         return result["candidates"][0]["content"]["parts"][0]["text"]
-
-    # Method 2 — Auth key as Bearer token (AQ.A... keys)
-    url_no_key = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-    headers_bearer = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}"
-    }
-    response2 = requests.post(url_no_key, headers=headers_bearer, json=payload)
-
-    if response2.status_code == 200:
-        result2 = response2.json()
-        return result2["candidates"][0]["content"]["parts"][0]["text"]
-
-    raise Exception(f"Both auth methods failed.\nMethod 1: {response.status_code}\nMethod 2: {response2.status_code} — {response2.text}")
-
+    else:
+        raise Exception(f"API Error {response.status_code}: {response.text}")
 
 # ─────────────────────────────────────────
 # Generate PDF Report
