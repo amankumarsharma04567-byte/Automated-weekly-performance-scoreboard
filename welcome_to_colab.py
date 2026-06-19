@@ -1,15 +1,14 @@
-import os
-
-os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6KAHzOJvcOLxoXwq_p8VDF3coTkMnUAN0ePxnEcQnC9Jw"
-
-
 # ============================================================
 # STEP 1 — Imports
 # ============================================================
+
 import os
+import streamlit as st
 from fpdf import FPDF
 from datetime import datetime, timedelta
 import google.generativeai as genai
+
+os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6KAHzOJvcOLxoXwq_p8VDF3coTkMnUAN0ePxnEcQnC9Jw"
 
 # ============================================================
 # STEP 2 — SET YOUR API KEY HERE
