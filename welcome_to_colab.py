@@ -8,12 +8,12 @@ from fpdf import FPDF
 from datetime import datetime, timedelta
 import google.generativeai as genai
 
-os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6KAHzOJvcOLxoXwq_p8VDF3coTkMnUAN0ePxnEcQnC9Jw"
+os.environ["GEMINI_API_KEY"] = ""
 
 # ============================================================
 # STEP 2 — SET YOUR API KEY HERE
 # ============================================================
-os.environ["GEMINI_API_KEY"] = "AQ.Ab8RN6KAHzOJvcOLxoXwq_p8VDF3coTkMnUAN0ePxnEcQnC9Jw"
+os.environ["GEMINI_API_KEY"] = ""
 
 # ============================================================
 # STEP 3 — Sample Performance Data
